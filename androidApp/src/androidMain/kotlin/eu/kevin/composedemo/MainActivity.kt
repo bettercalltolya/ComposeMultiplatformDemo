@@ -1,4 +1,4 @@
-package com.myapplication
+package eu.kevin.composedemo
 
 import MainView
 import android.os.Bundle
