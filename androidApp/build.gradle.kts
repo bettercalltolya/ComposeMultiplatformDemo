@@ -10,6 +10,11 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(project(":shared"))
+
+                implementation("com.arkivanov.decompose:decompose:2.0.0-compose-experimental-beta-01")
+                implementation("com.arkivanov.mvikotlin:mvikotlin:3.1.0")
+                implementation("com.arkivanov.mvikotlin:mvikotlin-main:3.1.0")
+                implementation("io.insert-koin:koin-android:3.3.3")
             }
         }
     }
@@ -31,6 +36,12 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.6"
     }
     kotlin {
         jvmToolchain(11)
