@@ -2,7 +2,6 @@ package demo.database
 
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.types.RealmUUID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -12,24 +11,17 @@ class NotesDao(private val realm: Realm) {
         return realm.query<NoteEntity>().asFlow().map { it.list }
     }
 
-    fun getNoteById(id: RealmUUID): NoteEntity? {
-        return realm.query<NoteEntity>(
-            "${NoteEntity::title.name} == $0",
-            id.toString()
-        ).first().find()
-    }
-
     suspend fun insertNote(note: NoteEntity) {
         realm.write {
             copyToRealm(note)
         }
     }
 
-    suspend fun updateNote(id: RealmUUID, title: String, body: String?) {
+    suspend fun updateNote(id: String, title: String, body: String) {
         realm.write {
             query<NoteEntity>(
-                "${NoteEntity::title.name} == $0",
-                id.toString()
+                "${NoteEntity::id.name} == $0",
+                id
             ).first().find()?.let {
                 it.title = title
                 it.body = body
@@ -37,11 +29,11 @@ class NotesDao(private val realm: Realm) {
         }
     }
 
-    suspend fun deleteNote(id: RealmUUID) {
+    suspend fun deleteNote(id: String) {
         realm.write {
             query<NoteEntity>(
-                "${NoteEntity::title.name} == $0",
-                id.toString()
+                "${NoteEntity::id.name} == $0",
+                id
             ).first().find()?.let {
                 delete(it)
             }

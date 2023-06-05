@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -53,7 +53,7 @@ internal fun HomeScreen(component: HomeComponent) {
 
     Scaffold(
         topBar = { AppBar() },
-        floatingActionButton = { Fab() },
+        floatingActionButton = { Fab(component::onCreateNote) },
         modifier = Modifier.fillMaxSize()
     ) {
         Crossfade(
@@ -65,7 +65,10 @@ internal fun HomeScreen(component: HomeComponent) {
             if (empty) {
                 EmptyScreen()
             } else {
-                NotesGrid(state.notes)
+                NotesGrid(
+                    notes = state.notes,
+                    onEditNote = component::onEditNote
+                )
             }
         }
     }
@@ -78,7 +81,7 @@ private fun AppBar() {
         title = {
             Text(
                 text = "Notes",
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -86,15 +89,15 @@ private fun AppBar() {
 }
 
 @Composable
-private fun Fab() {
+private fun Fab(onAdd: () -> Unit) {
     FloatingActionButton(
-        onClick = {},
+        onClick = onAdd,
         shape = MaterialTheme.shapes.medium,
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface
     ) {
         Icon(
-            imageVector = Icons.Filled.Add,
+            imageVector = Icons.Rounded.Add,
             contentDescription = "Add note"
         )
     }
@@ -102,7 +105,8 @@ private fun Fab() {
 
 @Composable
 private fun NotesGrid(
-    notes: List<NoteEntity>
+    notes: List<NoteEntity>,
+    onEditNote: (NoteEntity) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -113,14 +117,18 @@ private fun NotesGrid(
             notes.size,
             key = { notes[it].id }
         ) {
-            NoteItem(notes[it])
+            NoteItem(
+                note = notes[it],
+                onEditNote = onEditNote
+            )
         }
     }
 }
 
 @Composable
 private fun NoteItem(
-    note: NoteEntity
+    note: NoteEntity,
+    onEditNote: (NoteEntity) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -129,7 +137,7 @@ private fun NoteItem(
             .aspectRatio(1f)
             .clip(MaterialTheme.shapes.large)
             .background(MaterialTheme.colorScheme.surface)
-            .clickable { }
+            .clickable { onEditNote(note) }
             .padding(all = 16.dp)
     ) {
         Text(
@@ -140,15 +148,13 @@ private fun NoteItem(
             maxLines = 2,
             color = MaterialTheme.colorScheme.onSurface
         )
-        note.body?.let { body ->
-            Text(
-                text = body,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = 12.dp)
-            )
-        }
+        Text(
+            text = note.body,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = 12.dp)
+        )
     }
 }
 

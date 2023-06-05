@@ -7,7 +7,6 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import demo.database.NoteEntity
 import demo.database.NotesDao
-import demo.screens.home.store.HomeStore.Intent
 import demo.screens.home.store.HomeStore.State
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -20,9 +19,10 @@ internal class HomeStoreProvider(
 
     fun provide(): HomeStore =
         object : HomeStore,
-            Store<Intent, State, Nothing> by storeFactory.create(
+            Store<Nothing, State, Nothing> by storeFactory.create(
                 name = "HomeStore",
                 initialState = State(),
+                // Sends `Unit` Action to be handled straight away
                 bootstrapper = SimpleBootstrapper(Unit),
                 executorFactory = ::HomeExecutor,
                 reducer = HomeReducer
@@ -34,22 +34,13 @@ internal class HomeStoreProvider(
     }
 
     // Executor handles Intents and Actions
-    private inner class HomeExecutor : CoroutineExecutor<Intent, Unit, State, Message, Nothing>() {
-        // Initial action is null to start observing database
+    private inner class HomeExecutor : CoroutineExecutor<Nothing, Unit, State, Message, Nothing>() {
+        // Initial action is Unit to start observing database
         override fun executeAction(action: Unit, getState: () -> State) {
             notesDao.getNotesFlow()
                 .map(Message::NotesLoaded)
                 .onEach(::dispatch)
                 .launchIn(scope)
-        }
-
-        // Intents coming from UI (Component) are handled here
-        override fun executeIntent(intent: Intent, getState: () -> State) {
-            when (intent) {
-                else -> {
-
-                }
-            }
         }
     }
 

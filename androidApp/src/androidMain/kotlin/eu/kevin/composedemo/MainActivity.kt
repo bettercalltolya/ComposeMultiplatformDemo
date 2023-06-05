@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -34,7 +35,9 @@ class MainActivity : AppCompatActivity() {
                             componentContext = defaultComponentContext(),
                             storeFactory = DefaultStoreFactory()
                         ),
-                        modifier = Modifier.systemBarsPadding()
+                        modifier = Modifier
+                            .systemBarsPadding()
+                            .imePadding()
                     )
                 }
             }

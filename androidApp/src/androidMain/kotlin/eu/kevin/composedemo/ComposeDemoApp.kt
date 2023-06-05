@@ -1,7 +1,7 @@
 package eu.kevin.composedemo
 
 import android.app.Application
-import demo.di.initKoin
+import demo.helpers.initKoin
 import org.koin.android.ext.koin.androidContext
 
 class ComposeDemoApp : Application() {

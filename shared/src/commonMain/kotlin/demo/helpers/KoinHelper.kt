@@ -1,4 +1,4 @@
-package demo.di
+package demo.helpers
 
 import demo.database.di.databaseModule
 import org.koin.core.context.startKoin

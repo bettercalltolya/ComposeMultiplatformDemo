@@ -12,7 +12,7 @@ import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
 import demo.RootContent
-import demo.di.initKoin
+import demo.helpers.initKoin
 import demo.navigation.NotesRootComponent
 import platform.UIKit.UIViewController
 import demo.ui.theme.AppTheme

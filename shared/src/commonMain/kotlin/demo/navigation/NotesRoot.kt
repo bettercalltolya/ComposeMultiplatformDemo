@@ -4,14 +4,21 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.parcelable.Parcelable
 import com.arkivanov.essenty.parcelable.Parcelize
 import com.arkivanov.mvikotlin.core.store.StoreFactory
+import demo.core.ValueCallback
+import demo.database.NoteEntity
 import demo.navigation.NotesRoot.Child
 import demo.navigation.components.CreateNoteComponent
+import demo.navigation.components.CreateNoteComponent.Action.PopScreen
 import demo.navigation.components.EditNoteComponent
 import demo.navigation.components.HomeComponent
+import demo.navigation.components.HomeComponent.Action.CreateNote
+import demo.navigation.components.HomeComponent.Action.EditNote
 import demo.screens.createnote.CreateNoteComponentImpl
 import demo.screens.editnote.EditNoteComponentImpl
 import demo.screens.home.HomeComponentImpl
@@ -29,9 +36,9 @@ interface NotesRoot {
 
 class NotesRootComponent internal constructor(
     componentContext: ComponentContext,
-    private val home: (ComponentContext) -> HomeComponent,
-    private val createNote: (ComponentContext) -> CreateNoteComponent,
-    private val editNote: (ComponentContext) -> EditNoteComponent,
+    private val home: (ComponentContext, ValueCallback<HomeComponent.Action>) -> HomeComponent,
+    private val createNote: (ComponentContext, ValueCallback<CreateNoteComponent.Action>) -> CreateNoteComponent,
+    private val editNote: (ComponentContext, NoteEntity, ValueCallback<EditNoteComponent.Action>) -> EditNoteComponent,
 ) : NotesRoot {
 
     constructor(
@@ -39,22 +46,26 @@ class NotesRootComponent internal constructor(
         storeFactory: StoreFactory
     ) : this(
         componentContext = componentContext,
-        home = { context ->
+        home = { context, actions ->
             HomeComponentImpl(
                 context,
-                storeFactory
+                storeFactory,
+                actions
             )
         },
-        createNote = { context ->
+        createNote = { context, actions ->
             CreateNoteComponentImpl(
                 context,
-                storeFactory
+                storeFactory,
+                actions
             )
         },
-        editNote = { context ->
+        editNote = { context, note, actions ->
             EditNoteComponentImpl(
                 context,
-                storeFactory
+                storeFactory,
+                note,
+                actions
             )
         }
     )
@@ -76,19 +87,39 @@ class NotesRootComponent internal constructor(
         componentContext: ComponentContext
     ): Child =
         when (configuration) {
-            is Configuration.Home -> Child.Home(home(componentContext))
-            is Configuration.CreateNote -> Child.CreateNote(createNote(componentContext))
-            is Configuration.EditNote -> Child.EditNote(editNote(componentContext))
+            is Configuration.Home -> {
+                Child.Home(home(componentContext, ::onHomeAction))
+            }
+            is Configuration.CreateNote -> {
+                Child.CreateNote(createNote(componentContext, ::onCreateNoteAction))
+            }
+            is Configuration.EditNote -> {
+                Child.EditNote(editNote(componentContext, configuration.note, ::onEditNoteAction))
+            }
         }
 
+    private fun onHomeAction(action: HomeComponent.Action) {
+        when (action) {
+            is CreateNote -> navigation.push(Configuration.CreateNote)
+            is EditNote -> navigation.push(Configuration.EditNote(action.note))
+        }
+    }
+
+    private fun onCreateNoteAction(action: CreateNoteComponent.Action) {
+        when (action) {
+            is PopScreen -> navigation.pop()
+        }
+    }
+
+    private fun onEditNoteAction(action: EditNoteComponent.Action) {
+        when (action) {
+            is EditNoteComponent.Action.PopScreen -> navigation.pop()
+        }
+    }
+
     private sealed class Configuration : Parcelable {
-        @Parcelize
-        object Home : Configuration()
-
-        @Parcelize
-        object CreateNote : Configuration()
-
-        @Parcelize
-        object EditNote : Configuration()
+        @Parcelize object Home : Configuration()
+        @Parcelize object CreateNote : Configuration()
+        @Parcelize data class EditNote(val note: NoteEntity) : Configuration()
     }
 }

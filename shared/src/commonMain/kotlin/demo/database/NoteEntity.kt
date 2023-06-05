@@ -1,15 +1,18 @@
 package demo.database
 
+import com.arkivanov.essenty.parcelable.Parcelable
+import com.arkivanov.essenty.parcelable.Parcelize
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.RealmUUID
 import io.realm.kotlin.types.annotations.PrimaryKey
 
-class NoteEntity private constructor(): RealmObject {
+@Parcelize
+class NoteEntity private constructor(): RealmObject, Parcelable {
 
     @PrimaryKey
     var id: String = ""
     var title: String = ""
-    var body: String? = null
+    var body: String = ""
 
     companion object {
         fun create(
