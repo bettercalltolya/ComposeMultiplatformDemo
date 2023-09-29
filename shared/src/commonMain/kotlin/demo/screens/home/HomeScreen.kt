@@ -153,6 +153,7 @@ private fun NoteItem(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             overflow = TextOverflow.Ellipsis,
+            maxLines = 4,
             modifier = Modifier.padding(top = 12.dp)
         )
     }
